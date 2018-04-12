@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.kedacom.demo.dao.UserDao" >
+
+  <resultMap id="BaseResultMap" type="com.kedacom.demo.model.User" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="user_name" property="name" jdbcType="VARCHAR" />
+    <result column="user_password" property="password" jdbcType="VARCHAR" />
+    <result column="user_email" property="email" jdbcType="VARCHAR" />
+    <result column="user_photo" property="photo" jdbcType="VARCHAR" />
+    <result column="user_group" property="group" jdbcType="INTEGER" />
+    <result column="user_role" property="role" jdbcType="INTEGER" />
+    <result column="user_status" property="status" jdbcType="INTEGER" />
+  </resultMap>
+  <select id="getAllUser" resultMap="BaseResultMap" resultType="com.kedacom.demo.model.User">
+     select * from user
+  </select>
+  <select id="getOnlineUser" resultMap="BaseResultMap" resultType="com.kedacom.demo.model.User">
+     select * from user where user_status = 1
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="com.kedacom.demo.model.User" >
+    select *
+    from user
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectByNameAndPassword" resultMap="BaseResultMap" >
+    select * from user 
+    where user_name = #{name} and user_password = #{password}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from user
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" keyProperty="id" useGeneratedKeys="true" parameterType="com.kedacom.demo.model.User">
+	<selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="id">
+	     SELECT LAST_INSERT_ID() AS id
+	</selectKey>
+    insert into user (id,user_name, user_password, user_email, user_photo, user_group, user_role, user_status)
+    values (#{id,jdbcType=INTEGER},#{name,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR}, 
+      #{email,jdbcType=VARCHAR}, #{photo,jdbcType=VARCHAR}, #{group,jdbcType=INTEGER}, 
+      #{role,jdbcType=INTEGER}, #{status,jdbcType=INTEGER})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com.kedacom.demo.model.User" >
+    update user
+    set user_name = #{name,jdbcType=VARCHAR},
+      user_password = #{password,jdbcType=VARCHAR},
+      user_email = #{email,jdbcType=VARCHAR},
+      user_photo = #{photo,jdbcType=VARCHAR},
+      user_group = #{group,jdbcType=INTEGER},
+      user_role = #{role,jdbcType=INTEGER},
+      user_status = #{status,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  
+</mapper>
