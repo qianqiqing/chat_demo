@@ -32,11 +32,11 @@ public class UserManageController {
 	 @RequestMapping(value = "/createUser" , method = RequestMethod.POST)
 	 @ResponseBody
 	 public ResponseEntity<String> createUser(User user){
-//		 try{
+		 try{
 		    userManageService.createUser(user);
-//		 }catch(Exception e){
-//			 return new ResponseEntity<String>("创建用户失败！", HttpStatus.INTERNAL_SERVER_ERROR);
-//		 }
+		 }catch(Exception e){
+			 return new ResponseEntity<String>("创建用户失败！", HttpStatus.INTERNAL_SERVER_ERROR);
+		 }
 		 return new ResponseEntity<String>("创建用户成功！", HttpStatus.OK);
 	 }
 }
