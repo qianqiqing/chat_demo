@@ -23,9 +23,9 @@
     from user
     where id = #{id,jdbcType=INTEGER}
   </select>
-  <select id="selectByNameAndPassword" resultMap="BaseResultMap" >
+  <select id="selectByName" resultMap="BaseResultMap" parameterType="String">
     select * from user 
-    where user_name = #{name} and user_password = #{password}
+    where user_name = #{name}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
     delete from user

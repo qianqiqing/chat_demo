@@ -13,7 +13,7 @@ public interface UserDao {
 
     User selectByPrimaryKey(Integer id);
     
-    User selectByNameAndPassword(String name, String password);
+    User selectByName(String name);
 
     int updateByPrimaryKey(User user);
     

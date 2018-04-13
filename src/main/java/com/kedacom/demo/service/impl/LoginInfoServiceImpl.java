@@ -7,6 +7,7 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import com.kedacom.demo.dao.UserDao;
 import com.kedacom.demo.model.User;
@@ -38,6 +39,18 @@ public class LoginInfoServiceImpl implements LoginInfoService {
 		}
 		
 		return msg;
+	}
+	
+	public User validateUser(String name, String password){
+		if (!StringUtils.isEmpty(name) && !StringUtils.isEmpty(password)){
+			User user = userDao.selectByName(name);
+			if (user != null){
+				if(password.equals(user.getPassword())){
+					return user;
+				}
+			}
+		}
+		return null;
 	}
 
 

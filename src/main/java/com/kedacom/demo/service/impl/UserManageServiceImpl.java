@@ -28,8 +28,9 @@ public class UserManageServiceImpl implements UserManageService {
 	}
 
 	public User getUserDetail(String name, String password) {
-		User user = userDao.selectByNameAndPassword(name, password);
-		return user;
+//		User user = userDao.selectByNameAndPassword(name, password);
+//		return user;
+		return null;
 	}
 
 	public void modifyUser(User user) {

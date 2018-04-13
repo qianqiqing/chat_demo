@@ -30,7 +30,7 @@ public class AuthFilter implements Filter {
 
 		if (initUrl.equals(reUrl[reUrl.length-1]) || user != null) {
 		    arg2.doFilter(request, response); 
-		}else if(requestUrl.contains(".css") || requestUrl.contains(".js") || requestUrl.contains("/validate")){
+		}else if(requestUrl.contains(".css") || requestUrl.contains(".js") || requestUrl.contains("/loginValidate")){
 			arg2.doFilter(arg0, arg1);
 		}else {
 		    response.sendRedirect(request.getContextPath()+"/login");

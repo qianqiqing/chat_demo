@@ -34,11 +34,11 @@ public class LoginController {
 	
 	@RequestMapping (method = RequestMethod.GET)  
     public ModelAndView login() {
-		ModelAndView view = new ModelAndView("login/loginIndex");
+		ModelAndView view = new ModelAndView("login/login");
         return view;   
     }
 	
-	@RequestMapping (value = "/validate", method = RequestMethod.POST)
+	/*@RequestMapping (value = "/validate", method = RequestMethod.POST)
 	@ResponseBody
 	public String validate (HttpSession session , @RequestParam String name, @RequestParam String password) {
 		user = new User(name,password);
@@ -47,11 +47,23 @@ public class LoginController {
 			session.setAttribute("currentUser", user);
 		}
 		return msg;
+	}*/
+	
+	@RequestMapping (value = "/loginValidate")
+	public String loginValidate(HttpSession session , String name, String password){
+		User user = loginInfoService.validateUser(name, password);
+		if (user != null){
+			session.setAttribute("currentUser", user);
+			return "index";
+		} else{
+			return "login/login";
+		}
 	}
+	
 	
 	@RequestMapping (value = "/managerIndex" , method = RequestMethod.GET)
 	public ModelAndView managerIndex() {
-		ModelAndView view = new ModelAndView("login/managerIndex");
+		ModelAndView view = new ModelAndView("index");
 		return view;
 	}
 }

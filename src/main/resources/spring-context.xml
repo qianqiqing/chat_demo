@@ -16,14 +16,14 @@
         <context:include-filter expression="org.springframework.stereotype.Controller" type="annotation"/>
     </context:component-scan>
     
-    <bean id="stringHttpMessageConverter" class="org.springframework.http.converter.StringHttpMessageConverter">
+    <!-- <bean id="stringHttpMessageConverter" class="org.springframework.http.converter.StringHttpMessageConverter">
         <property name="supportedMediaTypes">
             <list>
                 <value>text/plain;charset=UTF-8</value>
                 <value>text/html;charset=UTF-8</value>
             </list>
         </property>
-    </bean>
+    </bean> -->
    
     <!-- <bean id="mappingJacksonHttpMessageConverter"  
         class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">  
@@ -34,26 +34,28 @@
         </property>  
     </bean>   -->
     
-    <bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
+   <!--  <bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
         <property name="messageConverters">
             <list>
                 <ref bean="stringHttpMessageConverter"/>
-                <!-- <ref bean="mappingJacksonHttpMessageConverter"/> -->
+                <ref bean="mappingJacksonHttpMessageConverter"/>
             </list>
         </property>
-    </bean>
+    </bean> -->
     
     <mvc:annotation-driven />
     
     <mvc:resources mapping="/public/**" location="/public/"/>
     
+    <mvc:default-servlet-handler />    
+    
     <!-- 设置freeMarker的配置文件路径 -->    
-    <bean id="freemarkerConfiguration" class="org.springframework.beans.factory.config.PropertiesFactoryBean">    
+    <!-- <bean id="freemarkerConfiguration" class="org.springframework.beans.factory.config.PropertiesFactoryBean">    
         <property name="location" value="classpath:freemaker.properties"/>
-    </bean>  
+    </bean>   -->
       
     <!-- 配置freeMarker的模板路径 -->    
-    <bean class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer">    
+    <!-- <bean class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer">    
         <property name="freemarkerSettings"> 
 	        <props>
 	            <prop key="defaultEncoding">GBK</prop> 
@@ -62,10 +64,10 @@
         <property name="templateLoaderPath">    
             <value>/WEB-INF/view/</value>    
         </property>    
-    </bean>  
+    </bean>   -->
         
-    <!-- 配置freeMarker视图解析器 -->    
-    <bean id="viewResolver" class="org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver">    
+   <!-- 配置freeMarker视图解析器 -->    
+    <!-- <bean id="viewResolver" class="org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver">    
         <property name="viewClass" value="org.springframework.web.servlet.view.freemarker.FreeMarkerView"/>    
         <property name="contentType" value="text/html; charset=utf-8"/>    
         <property name="cache" value="true"/>
@@ -75,6 +77,12 @@
         <property name="exposeSpringMacroHelpers" value="true" />
         <property name="exposeRequestAttributes" value="true" />
         <property name="exposeSessionAttributes" value="true" />    
-    </bean>
+    </bean> -->
+    
+    <!-- 配置视图解析器 -->  
+	<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">  
+	    <property name="prefix" value="/WEB-INF/view/"></property>  
+	    <property name="suffix" value=".jsp"></property>  
+	</bean>
     
 </beans>
