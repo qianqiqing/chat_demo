@@ -25,7 +25,7 @@ public class UserManageController {
 	 @RequestMapping(value = "/addUserIndex" , method = RequestMethod.GET)
 	 public ModelAndView addUserIndex(){
 		 ModelAndView view = new ModelAndView();
-		 view.setViewName("userManage/addIndex");
+		 view.setViewName("userManage/addUser");
 		 return view;
 	 }
 	 

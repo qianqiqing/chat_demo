@@ -117,6 +117,7 @@
      * 发送图片给后台
      */
     function sendImage(){
+		debugger
         var to = $("#sendto").text() == "全体成员"? "": $("#sendto").text();
         webSocket.send(JSON.stringify({
             message : {

@@ -1,18 +1,19 @@
-<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<title>Insert title here</title>
-</head>
-<body>
-     ${value}
-     <table>
-        <#if data?? && data?size>0)>
-            <#list data as em>
-                <td>${em.name}</td>
-                <td>${em.number}</td>
-            </#list>
-        </#if>
-     </table>
-</body>
-</html>
+<button
+  type="button"
+  class="am-btn am-btn-danger"
+  data-am-modal="{target: '#my-popup'}">
+  Popup
+</button>
+
+<div class="am-popup" id="my-popup">
+  <div class="am-popup-inner">
+    <div class="am-popup-hd">
+      <h4 class="am-popup-title">...</h4>
+      <span data-am-modal-close
+            class="am-close">&times;</span>
+    </div>
+    <div class="am-popup-bd">
+      ...
+    </div>
+  </div>
+</div>
