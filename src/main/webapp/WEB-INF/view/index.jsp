@@ -50,6 +50,7 @@
 <!-- content end -->
 <script>
 	var imgData =null;
+	var imgUrl = null;
 	var webSocket = null;
 	debugger
 	//判断当前浏览器是否支持WebSocket
@@ -119,11 +120,15 @@
     function sendImage(){
 		debugger
         var to = $("#sendto").text() == "全体成员"? "": $("#sendto").text();
+		var img = document.getElementById('img')
+		var file = img.files[0];
+		var imgName = file.name;
+		imgData = imgName;
         webSocket.send(JSON.stringify({
             message : {
-                content : imgData,//图片的base64类型字符串
-                from : '${currentUser.name}',//登录成功后保存在Session.attribute中的username
-                to : to      //接收人,如果没有则置空,如果有多个接收人则用,分隔
+                content : imgData,
+                from : '${currentUser.name}',
+                to : to  
             },
             type : "image"
         }));
@@ -133,19 +138,33 @@
 	* 解析后台传来的消息
 	*/
     function analysisMessage(message){
-        message = JSON.parse(message);
-        if(message.type == "message"){      //会话消息
-            showChat(message.message);
-        }
-        if(message.type == "notice"){       //提示消息
-            showNotice(message.message);
-        }
-        if(message.type == "image"){        //图片消息
-            showImage(message.message);
-        }
-        if(message.list != null && message.list != undefined){      //在线列表
-            showOnline(message.list);
-        }
+		debugger
+		if(typeof message == "string"){         //文字信息
+			message = JSON.parse(message);
+			if(message.type == "message"){      //会话消息
+	            showChat(message.message);
+	        }
+	        if(message.type == "notice"){       //提示消息
+	            showNotice(message.message);
+	        }
+	        if(message.list != null && message.list != undefined){      //在线列表
+	            showOnline(message.list);
+	        }
+		}else{                                  //文件信息，后台以字节传递
+			var to = message.to == null || message.to == ""? "全体成员" : message.to;
+            var html = "${currentUser.name}" + " 说： \n";
+        	var reader = new FileReader();  
+        	reader.onload=function(eve){  
+                if(eve.target.readyState==FileReader.DONE){  
+                   var img = document.createElement("img");  
+                   img.src=this.result; 
+                   $("#chat").append(html).append(img);
+                   var chat = $("#chat-view");
+                   chat.scrollTop(chat[0].scrollHeight);   //让聊天区始终滚动到最下面
+                }  
+            };  
+            reader.readAsDataURL(message);  
+		}
     }
 	
     /**
@@ -228,21 +247,17 @@
         $("#chat").append(innerHTML+"<br/>")
     };
     
-    /**
-     * 上传图片
-     * 使用FileReader对象将本地图片转换为base64发送给服务端
-     */
-    function uploadImage() {
-        var img = document.getElementById('img')
-                , imgShow = document.getElementById('imgShow')
-                , message = document.getElementById('message')
-        var imgFile = new FileReader();
-        imgFile.readAsDataURL(img.files[0]);
-        imgFile.onload = function () {
-            imgData = this.result; //base64数据
-            imgShow.setAttribute('src', imgData);
+    function getObjectURL(file) {  
+    	var oFReader = new FileReader();
+        var file = document.getElementById('input-file').files[0];
+        oFReader.readAsDataURL(file);
+        oFReader.onloadend = function(oFRevent){
+            var src = oFRevent.target.result;
+            $('.content').attr('src',src);
+            alert(src);
         }
-    }
+    }  
+   
 
 
 </script>

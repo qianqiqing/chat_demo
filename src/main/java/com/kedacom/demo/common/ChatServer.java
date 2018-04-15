@@ -8,7 +8,12 @@ import javax.servlet.http.HttpSession;
 import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
 
+import org.apache.log4j.Logger;
+
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -17,6 +22,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 @ServerEndpoint(value = "/websocket" , configurator = HttpSessionConfigurator.class)
 public class ChatServer {
+	private Logger logger = Logger.getLogger(this.getClass());
+	
     private static int onlineCount = 0; //在线用户数
     private static CopyOnWriteArraySet<ChatServer> webSocketSet = new CopyOnWriteArraySet<ChatServer>();
     private Session session;            //与某个客户端的连接会话
@@ -24,7 +31,7 @@ public class ChatServer {
     private HttpSession httpSession;    //request的session
 
     private static List<String> list = new ArrayList();   //在线列表
-    private static Map routetab = new HashMap();        //用户名和websocket的session绑定的路由表
+    private static Map routetab = new HashMap();        //用户名和session的对应map
 
     /**
      * 连接建立成功调用的方法
@@ -58,13 +65,14 @@ public class ChatServer {
     
     /**
      * 接收客户端的消息
+     * @param <T>
      * */    
     @OnMessage
-    public void onMessage(String _message) {
+    public void receiveBigText(String _message, boolean last) {
         JSONObject chat = JSON.parseObject(_message);
         JSONObject message = JSON.parseObject(chat.get("message").toString());
-        if(message.get("to") == null || message.get("to").equals("")){      //如果to为空,则广播;如果不为空,则对指定的用户发送消息
-            broadcast(_message);
+        if(message.get("to") == null || message.get("to").equals("")){      //如果to为空，发送给所有人;如果不为空,则对指定的用户发送消息
+        	multiSend(_message);
         }else{
             String [] userlist = message.get("to").toString().split(",");
             singleSend(_message, (Session) routetab.get(message.get("from")));      //发送给自己,这个别忘了
@@ -85,28 +93,66 @@ public class ChatServer {
     }
     
     /**
-     * 广播消息
+     *  广播通知
      */
-    public void broadcast(String message){
-        for(ChatServer chat: webSocketSet){
-            try {
-                chat.session.getBasicRemote().sendText(message);
-            } catch (IOException e) {
-                e.printStackTrace();
-                continue;
-            }
-        }
+    public void broadcast(String _message){
+    	try {
+			for(ChatServer chatServer: webSocketSet){
+			    chatServer.session.getBasicRemote().sendText(_message);
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
     
     /**
-     * 对特定用户发送消息
+     * 对所有用户发送消息
      */
-    public void singleSend(String message, Session session){
+    public void multiSend(String _message){
+    	JSONObject chat = JSON.parseObject(_message);
+        JSONObject message = JSON.parseObject(chat.get("message").toString());
+		if("image".equals(chat.get("type"))){
+    		for(ChatServer chatServer: webSocketSet){
+    			sendFile(message.get("content").toString(), chatServer.session);
+    		}
+    	}else{
+    		broadcast(_message);
+    	}
+    }
+    
+    /**
+     * 对单个用户发送消息
+     */
+    public void singleSend(String _message, Session session){
+    	JSONObject chat = JSON.parseObject(_message);
+        JSONObject message = JSON.parseObject(chat.get("message").toString());
         try {
-            session.getBasicRemote().sendText(message);
+        	if("message".equals(chat.get("type"))){
+        		session.getBasicRemote().sendText(_message);
+        	}else if("image".equals(chat.get("type"))){
+        		sendFile(message.get("content").toString(), session);
+        	}
+            
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+    
+    private void sendFile(String fileName, Session session){
+    	FileInputStream input;  
+        try {  
+            File file=new File("C:\\Users\\qianqiqing\\Desktop\\" + fileName);  
+            input = new FileInputStream(file);  
+            byte bytes[] = new byte[(int) file.length()];   
+            input.read(bytes); 
+            ByteBuffer buffer = ByteBuffer.wrap(bytes);
+//            BinaryMessage byteMessage=new BinaryMessage(bytes);  
+            session.getBasicRemote().sendBinary(buffer);
+            input.close();  
+        } catch (Exception e) {  
+            e.printStackTrace();  
+        }      
     }
     
     /**
