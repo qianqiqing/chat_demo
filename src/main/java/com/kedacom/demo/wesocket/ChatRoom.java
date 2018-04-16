@@ -27,6 +27,7 @@ import org.springframework.web.socket.handler.AbstractWebSocketHandler;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.JSONPObject;
 import com.kedacom.demo.common.ChatServer;
 import com.kedacom.demo.model.User;
 
@@ -42,7 +43,7 @@ public class ChatRoom extends AbstractWebSocketHandler{
     
     FileOutputStream outPut;
     
-    private final String loadFilePath = "D:\\loadFiles\\";
+    public static final String loadFilePath = "D:\\loadFiles\\";
  
 	SimpleDateFormat format=new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");  
 	 
@@ -72,44 +73,32 @@ public class ChatRoom extends AbstractWebSocketHandler{
 	@Override  
     public void handleTextMessage(WebSocketSession websocketsession, TextMessage message) {  
         String payload=message.getPayload();  
-        String textString; 
         JSONObject jsonObject = JSON.parseObject(payload);
         JSONObject messageObject = JSON.parseObject(jsonObject.get("message").toString());
         String type = jsonObject.get("type").toString();
         String content = messageObject.get("content").toString();
+        TextMessage textMessage;
         try{
-        	if("fileStart".equals(type)){                 //开始传输文件
+        	if("fileStart".equals(type)){    //开始传输文件
+        		File file = new File(loadFilePath);
+        		if(!file.exists()){
+        			file.mkdirs();
+        		}
             	outPut=new FileOutputStream(new File(loadFilePath + content));   //在服务端制定路径创建新的文件
             }else if("fileFinish".equals(type)){           //文件传输结束
             	outPut.close();
-            	TextMessage messageContent = getMessage(messageObject.get("from").toString() + " 说 :", "message", null);
-            	if(messageObject.get("to") == null || messageObject.get("to").equals("")){      //如果to为空，发送给所有人;如果不为空,则对指定的用户发送消息
-                	broadcast(messageContent);   
-                	//发送图片
-                	for(WebSocketSession session : sessionList){
-                		sendFile(content, session);
-                	}
-                }else{
-                    String [] userlist = messageObject.get("to").toString().split(",");
-                    for(String user : userlist){
-                        if(!user.equals(messageObject.get("from"))){
-                            sendMessage(messageContent, (WebSocketSession) routetab.get(user));     //分别发送给每个指定用户
-                            sendFile(content, (WebSocketSession) routetab.get(user));
-                        }
-                    }
-                }
+            	if("image".equals(messageObject.get("fileType").toString())){    //如果是图片，返回客户端的是  文字信息+图片二进制，分两次发送
+            		textMessage = getMessage(messageObject.get("from").toString() + " 说 :", "message", null);
+            		sendMessage(textMessage, messageObject);
+            	}else{                                                           //文件则发送一个可下载的文件名链接
+            		String html = "<a href=\"#\" onclick=\"downLoad('"+content+"')\">"+content+"</a></br>";
+            		textMessage = getMessage(messageObject.get("from").toString() + " 发送文件 : " + html , "message", null);
+            		sendMessage(textMessage, messageObject);
+            	}
+            	
             }else{
-            	if(messageObject.get("to") == null || messageObject.get("to").equals("")){      //如果to为空，发送给所有人;如果不为空,则对指定的用户发送消息
-                	broadcast(message);   
-                }else{
-                    String [] userlist = messageObject.get("to").toString().split(",");
-                    sendMessage(message, (WebSocketSession) routetab.get(messageObject.get("from")));      //发送给自己,这个别忘了
-                    for(String user : userlist){
-                        if(!user.equals(messageObject.get("from"))){
-                        	sendMessage(message, (WebSocketSession) routetab.get(user));     //分别发送给每个指定用户
-                        }
-                    }
-                }
+            	textMessage = getMessage(messageObject.get("from").toString() + " 说 : " + content +"</br>", "message", null);
+            	sendMessage(textMessage, messageObject);
             }
         }catch(Exception e){
         	
@@ -137,9 +126,48 @@ public class ChatRoom extends AbstractWebSocketHandler{
 	@Override    
     public boolean supportsPartialMessages() {    
         return true;    
-    }    
+    }  
 	
-	public void sendMessage(TextMessage message, WebSocketSession session){
+	/**
+     * 发送消息
+     * 如果是图片，返回客户端的是  文字信息+图片二进制，分两次发送
+     * 文件返回 文件的链接
+     */
+	public void sendMessage(TextMessage message, JSONObject messageObject){
+		String fileType = messageObject.get("fileType").toString();
+		if(messageObject.get("to") == null || messageObject.get("to").equals("")){      //如果to为空，发送给所有人;如果不为空,则对指定的用户发送消息
+        	broadcast(message);
+        	if("image".equals(fileType)){                                               //如果是图片，必须将图片的二进制数据传回客户端展示
+        		//发送图片
+            	for(WebSocketSession session : sessionList){
+            		sendFile(messageObject.get("content").toString(), session);
+            	}
+        	}
+        }else{
+            String [] userlist = messageObject.get("to").toString().split(",");
+            sendText(message, (WebSocketSession) routetab.get(messageObject.get("from")));      //发送给自己,这个别忘了
+            if("image".equals(fileType)){ 
+            	sendFile(messageObject.get("content").toString(), (WebSocketSession) routetab.get(messageObject.get("from")));
+            }
+            for(String user : userlist){
+                if(!user.equals(messageObject.get("from"))){
+                	sendText(message, (WebSocketSession) routetab.get(user));     //分别发送给每个指定用户
+                	if("image".equals(fileType)){ 
+                		sendFile(messageObject.get("content").toString(), (WebSocketSession) routetab.get(user));
+                	}
+                }
+            }
+        }
+	}
+	
+	/**
+     * 发送图片信息
+     */
+	public void sendPicture(){
+		
+	}
+	
+	public void sendText(TextMessage message, WebSocketSession session){
 		try{
 			session.sendMessage(message);
 		}catch(Exception e){

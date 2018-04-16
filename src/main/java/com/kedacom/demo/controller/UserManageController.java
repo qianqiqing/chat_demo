@@ -1,5 +1,9 @@
 package com.kedacom.demo.controller;
 
+import java.io.UnsupportedEncodingException;
+
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,4 +43,11 @@ public class UserManageController {
 		 }
 		 return new ResponseEntity<String>("创建用户成功！", HttpStatus.OK);
 	 }
+	 
+	 @RequestMapping(value = "/downLoad")
+	 @ResponseBody
+	 public void downLoad(HttpServletResponse response, @RequestParam String fileName) throws UnsupportedEncodingException{
+		 userManageService.downLoad(response, java.net.URLDecoder.decode(fileName,"UTF-8"));
+	 }
+         
 }
