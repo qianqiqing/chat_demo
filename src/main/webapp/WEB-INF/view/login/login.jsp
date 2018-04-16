@@ -5,7 +5,7 @@
 <html>
 <head lang="en">
     <title>Login Page | Amaze UI Example</title>
-    <jsp:include page="../commonfile.jsp"/>
+    <jsp:include page="../common/commonfile.jsp"/>
     <style>
         .header {
             text-align: center;
@@ -60,39 +60,5 @@
         <p>© 2014 AllMobilize, Inc. Licensed under MIT license.</p>
     </div>
 </div>
-<script>
-    /* $(document).ready(function(){
-       $("#submit").on("click",function(){
-       debugger
-           var name = $("#name").val();
-           var password = $("#password").val();
-           $.ajax({
-              url : "/demo/login/validate",
-              type : "post",
-              data : {
-                  name : name,
-                  password : password
-              },
-              success : function(result){
-              debugger
-                  if(result == null || result == ""){
-                      window.location.href = "/demo/login/managerIndex";
-                  }else{
-                      $("#errMsg").html(result);
-                  }
-              },
-              error : function(e){
-              
-              }
-           })
-       });
-       
-       $("#clear").on("click",function(){
-       
-       })
-    }); */
-
-</script>
-    
 </body>
 </html>

@@ -38,23 +38,12 @@ public class LoginController {
         return view;   
     }
 	
-	/*@RequestMapping (value = "/validate", method = RequestMethod.POST)
-	@ResponseBody
-	public String validate (HttpSession session , @RequestParam String name, @RequestParam String password) {
-		user = new User(name,password);
-		String msg = loginInfoService.validate(user);
-		if (StringUtils.isEmpty(msg)){
-			session.setAttribute("currentUser", user);
-		}
-		return msg;
-	}*/
-	
 	@RequestMapping (value = "/loginValidate")
 	public String loginValidate(HttpSession session , String name, String password){
 		User user = loginInfoService.validateUser(name, password);
 		if (user != null){
 			session.setAttribute("currentUser", user);
-			return "index";
+			return "index_test";
 		} else{
 			return "login/login";
 		}

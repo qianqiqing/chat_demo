@@ -54,7 +54,7 @@
 	var webSocket = null;
 	debugger
 	//判断当前浏览器是否支持WebSocket
-	webSocket = new WebSocket("ws://" + location.host+"${pageContext.request.contextPath}" + "/websocket");
+	webSocket = new WebSocket("ws://" + location.host+"${pageContext.request.contextPath}" + "/chat.sc");
 	
 	//连接成功建立的回调方法
     webSocket.onopen = function (event) {
@@ -175,7 +175,7 @@
                 if(eve.target.readyState==FileReader.DONE){  
                    var img = document.createElement("img");  
                    img.src=this.result; 
-                   $("#chat").append(html).append(img);
+                   $("#chat").append(img).append("</br>");
                    var chat = $("#chat-view");
                    chat.scrollTop(chat[0].scrollHeight);   //让聊天区始终滚动到最下面
                 }  

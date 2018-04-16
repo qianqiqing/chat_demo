@@ -10,9 +10,13 @@ import javax.websocket.server.ServerEndpoint;
 
 import org.apache.log4j.Logger;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,6 +36,10 @@ public class ChatServer {
 
     private static List<String> list = new ArrayList();   //在线列表
     private static Map routetab = new HashMap();        //用户名和session的对应map
+    
+    private OutputStream outPut;
+    
+    private final String loadFilePath = "D:\\loadFiles\\";
 
     /**
      * 连接建立成功调用的方法
@@ -64,24 +72,75 @@ public class ChatServer {
     }
     
     /**
-     * 接收客户端的消息
-     * @param <T>
+     * 接收客户端文字信息
      * */    
     @OnMessage
     public void receiveBigText(String _message, boolean last) {
         JSONObject chat = JSON.parseObject(_message);
         JSONObject message = JSON.parseObject(chat.get("message").toString());
-        if(message.get("to") == null || message.get("to").equals("")){      //如果to为空，发送给所有人;如果不为空,则对指定的用户发送消息
-        	multiSend(_message);
-        }else{
-            String [] userlist = message.get("to").toString().split(",");
-            singleSend(_message, (Session) routetab.get(message.get("from")));      //发送给自己,这个别忘了
-            for(String user : userlist){
-                if(!user.equals(message.get("from"))){
-                    singleSend(_message, (Session) routetab.get(user));     //分别发送给每个指定用户
+        String type = chat.get("type").toString();
+        String content = message.get("content").toString();
+        
+        try{
+        	if("fileStart".equals(type)){                 //开始传输文件
+            	outPut=new FileOutputStream(new File(loadFilePath + content));   //在服务端制定路径创建新的文件
+            }else if("fileFinish".equals(type)){           //文件传输结束
+            	outPut.close();
+            	String messageContent = getMessage(message.get("from").toString() + " 说 :", "message", null);
+            	if(message.get("to") == null || message.get("to").equals("")){      //如果to为空，发送给所有人;如果不为空,则对指定的用户发送消息
+                	broadcast(messageContent);   
+                	//发送图片
+                	for(ChatServer chatServer : webSocketSet){
+                		sendFile(content, chatServer.session);
+                	}
+                }else{
+                    String [] userlist = message.get("to").toString().split(",");
+                    singleSend(messageContent, (Session) routetab.get(message.get("from")));      //发送给自己,这个别忘了
+                    for(String user : userlist){
+                        if(!user.equals(message.get("from"))){
+                            singleSend(messageContent, (Session) routetab.get(user));     //分别发送给每个指定用户
+                            sendFile(content, (Session) routetab.get(user));
+                        }
+                    }
+                }
+            }else{
+            	if(message.get("to") == null || message.get("to").equals("")){      //如果to为空，发送给所有人;如果不为空,则对指定的用户发送消息
+                	broadcast(_message);   
+                }else{
+                    String [] userlist = message.get("to").toString().split(",");
+                    singleSend(_message, (Session) routetab.get(message.get("from")));      //发送给自己,这个别忘了
+                    for(String user : userlist){
+                        if(!user.equals(message.get("from"))){
+                            singleSend(_message, (Session) routetab.get(user));     //分别发送给每个指定用户
+                        }
+                    }
                 }
             }
+        }catch(Exception e){
+        	
         }
+        
+        	
+        	
+        
+    }
+    
+    /**
+     * 接收客户端二进制文件
+     * */   
+    @OnMessage
+    public void processStream(InputStream in)  {
+    	try {  
+    		ByteArrayOutputStream out=new ByteArrayOutputStream();
+            byte[] buffer=new byte[1024*4];
+            int n=0;
+            while ( (n=in.read(buffer)) !=-1) {
+                out.write(buffer,0,n);
+            }
+    		outPut.write(buffer);  
+        } catch (IOException e) {  
+            e.printStackTrace();  
+        }  
     }
     
     /**
@@ -112,13 +171,10 @@ public class ChatServer {
     public void multiSend(String _message){
     	JSONObject chat = JSON.parseObject(_message);
         JSONObject message = JSON.parseObject(chat.get("message").toString());
-		if("image".equals(chat.get("type"))){
-    		for(ChatServer chatServer: webSocketSet){
-    			sendFile(message.get("content").toString(), chatServer.session);
-    		}
-    	}else{
-    		broadcast(_message);
-    	}
+        broadcast(_message);
+        for(ChatServer chatServer: webSocketSet){
+			sendFile(message.get("content").toString(), chatServer.session);
+		}
     }
     
     /**
@@ -142,12 +198,11 @@ public class ChatServer {
     private void sendFile(String fileName, Session session){
     	FileInputStream input;  
         try {  
-            File file=new File("C:\\Users\\qianqiqing\\Desktop\\" + fileName);  
+            File file=new File(loadFilePath + fileName);  
             input = new FileInputStream(file);  
             byte bytes[] = new byte[(int) file.length()];   
             input.read(bytes); 
             ByteBuffer buffer = ByteBuffer.wrap(bytes);
-//            BinaryMessage byteMessage=new BinaryMessage(bytes);  
             session.getBasicRemote().sendBinary(buffer);
             input.close();  
         } catch (Exception e) {  
