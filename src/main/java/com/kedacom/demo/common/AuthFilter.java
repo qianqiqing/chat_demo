@@ -14,6 +14,11 @@ import javax.servlet.http.HttpSession;
 
 import com.kedacom.demo.model.User;
 
+/**
+ * ¹ýÂËÆ÷À¹½ØÇëÇó
+ * @author qianqiqing
+ *
+ */
 public class AuthFilter implements Filter {
 	private String requestUrl;
 	private String initUrl;
@@ -30,9 +35,9 @@ public class AuthFilter implements Filter {
 
 		if (initUrl.equals(reUrl[reUrl.length-1]) || user != null) {
 		    arg2.doFilter(request, response); 
-		}else if(requestUrl.contains(".css") || requestUrl.contains(".js") || requestUrl.contains("/loginValidate")){
+		} else if (requestUrl.contains(".css") || requestUrl.contains(".js") || requestUrl.contains("/loginValidate")){
 			arg2.doFilter(arg0, arg1);
-		}else {
+		} else {
 		    response.sendRedirect(request.getContextPath()+"/login");
 		}
 		

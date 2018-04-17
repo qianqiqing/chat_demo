@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-@ServerEndpoint(value = "/websocket" , configurator = HttpSessionConfigurator.class)
+@ServerEndpoint (value = "/websocket" , configurator = HttpSessionConfigurator.class)
 public class ChatServer {
 	private Logger logger = Logger.getLogger(this.getClass());
 	
@@ -45,7 +45,7 @@ public class ChatServer {
      * 连接建立成功调用的方法
      * */
     @OnOpen
-    public void onOpen(Session session, EndpointConfig config){
+    public void onOpen(Session session, EndpointConfig config) {
         this.session = session;
         webSocketSet.add(this); 
         addOnlineCount();           //在线数加1;
@@ -62,18 +62,21 @@ public class ChatServer {
      * 连接关闭调用的方法
      * */
     @OnClose
-    public void onClose(){
+    public void onClose() {
         webSocketSet.remove(this);    //从set中删除
         subOnlineCount();             //在线人数减1
         list.remove(username);        //从在线列表移除这个用户
         routetab.remove(username);
         String message = getMessage("[" + username +"]离开了聊天室,当前在线人数为"+getOnlineCount()+"位", "notice", list);
-        broadcast(message);         //广播
+        broadcast(message);           //广播
     }
     
-    /**
-     * 接收客户端文字信息
-     * */    
+   /**
+    * 接收客户端的文本信息
+    * @description 客户端发送的是一个组装的json字符串，包含发送人，接收人，消息类型等  
+    * @param _message
+    * @param last
+    */
     @OnMessage
     public void receiveBigText(String _message, boolean last) {
         JSONObject chat = JSON.parseObject(_message);
@@ -81,19 +84,19 @@ public class ChatServer {
         String type = chat.get("type").toString();
         String content = message.get("content").toString();
         
-        try{
-        	if("fileStart".equals(type)){                 //开始传输文件
+        try {
+        	if ("fileStart".equals(type)) {                 //开始传输文件
             	outPut=new FileOutputStream(new File(loadFilePath + content));   //在服务端制定路径创建新的文件
-            }else if("fileFinish".equals(type)){           //文件传输结束
+            } else if ("fileFinish".equals(type)) {           //文件传输结束
             	outPut.close();
             	String messageContent = getMessage(message.get("from").toString() + " 说 :", "message", null);
-            	if(message.get("to") == null || message.get("to").equals("")){      //如果to为空，发送给所有人;如果不为空,则对指定的用户发送消息
+            	if (message.get("to") == null || message.get("to").equals("")) {      //如果to为空，发送给所有人;如果不为空,则对指定的用户发送消息
                 	broadcast(messageContent);   
                 	//发送图片
                 	for(ChatServer chatServer : webSocketSet){
                 		sendFile(content, chatServer.session);
                 	}
-                }else{
+                } else {
                     String [] userlist = message.get("to").toString().split(",");
                     singleSend(messageContent, (Session) routetab.get(message.get("from")));      //发送给自己,这个别忘了
                     for(String user : userlist){
@@ -103,38 +106,35 @@ public class ChatServer {
                         }
                     }
                 }
-            }else{
-            	if(message.get("to") == null || message.get("to").equals("")){      //如果to为空，发送给所有人;如果不为空,则对指定的用户发送消息
+            } else {
+            	if (message.get("to") == null || message.get("to").equals("")) {      //如果to为空，发送给所有人;如果不为空,则对指定的用户发送消息
                 	broadcast(_message);   
-                }else{
+                } else {
                     String [] userlist = message.get("to").toString().split(",");
                     singleSend(_message, (Session) routetab.get(message.get("from")));      //发送给自己,这个别忘了
-                    for(String user : userlist){
-                        if(!user.equals(message.get("from"))){
+                    for (String user : userlist) {
+                        if (!user.equals(message.get("from"))) {
                             singleSend(_message, (Session) routetab.get(user));     //分别发送给每个指定用户
                         }
                     }
                 }
             }
-        }catch(Exception e){
+        } catch (Exception e) {
         	
         }
-        
-        	
-        	
-        
     }
     
     /**
-     * 接收客户端二进制文件
-     * */   
+     * 以流的形式接收信息 
+     * @param in
+     */
     @OnMessage
     public void processStream(InputStream in)  {
     	try {  
-    		ByteArrayOutputStream out=new ByteArrayOutputStream();
-            byte[] buffer=new byte[1024*4];
-            int n=0;
-            while ( (n=in.read(buffer)) !=-1) {
+    		ByteArrayOutputStream out = new ByteArrayOutputStream();
+            byte[] buffer = new byte[1024*4];
+            int n = 0;
+            while ( (n = in.read(buffer)) != -1) {
                 out.write(buffer,0,n);
             }
     		outPut.write(buffer);  
@@ -144,19 +144,21 @@ public class ChatServer {
     }
     
     /**
-     * 发生错误时调用
+     * 连接错误时调用
+     * @param error
      */
     @OnError
-    public void onError(Throwable error){
+    public void onError(Throwable error) {
         error.printStackTrace();
     }
     
     /**
-     *  广播通知
+     * 广播消息
+     * @param _message
      */
-    public void broadcast(String _message){
+    public void broadcast(String _message) {
     	try {
-			for(ChatServer chatServer: webSocketSet){
+			for (ChatServer chatServer: webSocketSet) {
 			    chatServer.session.getBasicRemote().sendText(_message);
 			}
 		} catch (IOException e) {
@@ -166,27 +168,30 @@ public class ChatServer {
     }
     
     /**
-     * 对所有用户发送消息
+     * 发送信息给所有用户
+     * @param _message
      */
-    public void multiSend(String _message){
+    public void multiSend(String _message) {
     	JSONObject chat = JSON.parseObject(_message);
         JSONObject message = JSON.parseObject(chat.get("message").toString());
         broadcast(_message);
-        for(ChatServer chatServer: webSocketSet){
+        for (ChatServer chatServer: webSocketSet) {
 			sendFile(message.get("content").toString(), chatServer.session);
 		}
     }
     
     /**
-     * 对单个用户发送消息
+     * 发送信息给单个用户
+     * @param _message
+     * @param session
      */
-    public void singleSend(String _message, Session session){
+    public void singleSend(String _message, Session session) {
     	JSONObject chat = JSON.parseObject(_message);
         JSONObject message = JSON.parseObject(chat.get("message").toString());
         try {
-        	if("message".equals(chat.get("type"))){
+        	if ("message".equals(chat.get("type"))) {
         		session.getBasicRemote().sendText(_message);
-        	}else if("image".equals(chat.get("type"))){
+        	} else if ("image".equals(chat.get("type"))) {
         		sendFile(message.get("content").toString(), session);
         	}
             
@@ -195,10 +200,15 @@ public class ChatServer {
         }
     }
     
-    private void sendFile(String fileName, Session session){
+    /**
+     * 发送文件的二进制信息
+     * @param fileName
+     * @param session
+     */
+    private void sendFile(String fileName, Session session) {
     	FileInputStream input;  
         try {  
-            File file=new File(loadFilePath + fileName);  
+            File file = new File(loadFilePath + fileName);  
             input = new FileInputStream(file);  
             byte bytes[] = new byte[(int) file.length()];   
             input.read(bytes); 
@@ -213,7 +223,7 @@ public class ChatServer {
     /**
      * 组装返回给前台的消息
      */
-    public String getMessage(String message, String type, List<String> list){
+    public String getMessage(String message, String type, List<String> list) {
         JSONObject member = new JSONObject();
         member.put("message", message);
         member.put("type", type);
@@ -221,15 +231,15 @@ public class ChatServer {
         return member.toString();
     }
     
-    public  int getOnlineCount() {
+    public int getOnlineCount() {
         return onlineCount;
     }
 
-    public  void addOnlineCount() {
+    public void addOnlineCount() {
         ChatServer.onlineCount++;
     }
 
-    public  void subOnlineCount() {
+    public void subOnlineCount() {
         ChatServer.onlineCount--;
     }
     

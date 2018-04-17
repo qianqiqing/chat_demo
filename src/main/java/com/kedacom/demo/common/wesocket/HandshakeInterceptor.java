@@ -1,4 +1,4 @@
-package com.kedacom.demo.wesocket;
+package com.kedacom.demo.common.wesocket;
 
 import java.util.Map;
 
@@ -12,15 +12,17 @@ import org.springframework.web.socket.server.support.HttpSessionHandshakeInterce
 
 import com.kedacom.demo.model.User;
 
-public class HandshakeInterceptor extends HttpSessionHandshakeInterceptor{
+/**
+ * WebSocket握手请求的拦截器. 检查握手请求和响应
+ * @author 钱其清
+ */
+public class HandshakeInterceptor extends HttpSessionHandshakeInterceptor {
 	@Override    
     public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler handler, Map<String, Object> attributes) throws Exception {    
-		System.out.println("Before Handshake");
         if (request instanceof ServletServerHttpRequest) {
             ServletServerHttpRequest servletRequest = (ServletServerHttpRequest) request;
             HttpSession session = servletRequest.getServletRequest().getSession(false);
             if (session != null) {
-                //使用userName区分WebSocketHandler，以便定向发送消息
                 User user = (User) session.getAttribute("currentUser");
                 attributes.put("WEBSOCKET_USERNAME",user.getName());
             }

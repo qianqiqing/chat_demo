@@ -14,7 +14,10 @@
 				             <span class="am-icon-users"></span> ${currentUser.name} <span class="am-icon-caret-down"></span>
 				        </a>
 				        <ul class="am-dropdown-content">
-					          <li><a href="javascript:createUser();"><span class="am-icon-user"></span> 创建用户</a></li>
+				              <c:if  test = "${currentUser.role == 1}">
+				                  <li><a href="javascript:createUser();"><span class="am-icon-user"></span> 创建用户</a></li>
+				                  <li><a href="javascript:createGroup();"><span class="am-icon-user"></span> 新建分组</a></li>
+				              </c:if>
 					          <li><a href="#"><span class="am-icon-cog"></span> 个人设置</a></li>
 					          <li><a href="#"><span class="am-icon-power-off"></span> 退出</a></li>
 				        </ul>

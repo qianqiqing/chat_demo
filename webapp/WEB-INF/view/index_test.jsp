@@ -12,32 +12,54 @@
 <!-- content start -->
 <div class="admin-content">
     <div class="" style="width: 80%;float:left;">
-        <!-- 聊天区 -->
-        <div class="am-scrollable-vertical" id="chat-view" style="height: 510px;">
-            <ul class="am-comments-list" id="chat">
-            </ul>
+        <!--个人信息展示区  -->
+        <div style="width:25%;float:left">
+	        <section class="am-panel am-panel-default">
+			  <header class="am-panel-hd">
+			    <h3 class="am-panel-title">个人信息</h3>
+			  </header>
+			  <div style="height:500px;">
+			  <table class="am-table">
+			     <tbody id="loadUserser">
+			     
+			     </tbody>
+			  </table>
+			      <p>用户名: ${currentUser.name}</p>
+			      <p>邮箱: ${currentUser.email}</p>
+			      <p>账号角色 ： ${currentUser.role}</p>
+			      <p>所在分组 ： ${currentUser.group}</p>
+			</section>
         </div>
-        <!-- 输入区 -->
-        <div class="am-form-group am-form" >
-            <textarea class="" id="message" name="message" rows="5"  placeholder="这里输入你想发送的信息..."></textarea>
+        <!--中间聊天部分  -->
+        <div style="float:right;width: 75%;">
+            <section class="am-panel am-panel-default">
+		        <!-- 聊天区 -->
+		        <div class="am-scrollable-vertical" id="chat-view" style="height: 400px;">
+		            <ul class="am-comments-list" id="chat">
+		            </ul>
+		        </div>
+		        <!-- 输入区 -->
+		        <div class="am-form-group am-form" >
+		            <textarea class="" id="message" name="message" rows="5"  placeholder="这里输入你想发送的信息..."></textarea>
+		        </div>
+		        <%--预览区--%>
+		        <div class="" style="float:left;">
+		            <input type="file" id="file">
+		        </div>
+		        <!-- 接收者 -->
+		        <div class="" style="float: left">
+		            <p class="am-kai">发送给  : <span id="sendto">全体成员</span><button class="am-btn am-btn-xs am-btn-danger" onclick="$('#sendto').text('全体成员')">复位</button></p>
+		        </div>
+		        <!-- 按钮区 -->
+		        <div class="am-btn-group am-btn-group-xs" style="float:right;">
+		            <button class="am-btn am-btn-default" type="button" onclick="sendMessage()"><span class="am-icon-commenting"></span> 发送文字</button>
+		            <button class="am-btn am-btn-default" type="file" onclick="sendFileOrImage('image')"><span class="am-icon-file-image-o"></span> 发送图片</button>
+		            <button class="am-btn am-btn-default" type="file" onclick="sendFileOrImage('file')"><span class="am-icon-file-image-o"></span> 发送文件</button>
+		            <button class="am-btn am-btn-default" type="button" onclick="clearConsole()"><span class="am-icon-trash-o"></span> 清屏</button>
+		        </div>
+	        </section>
         </div>
-        <%--预览区--%>
-        <div class="" style="float:left;">
-            <input type="file" id="file"> 预览：<img id="imgShow" src="" alt="">
-        </div>
-        <br>
-        <!-- 接收者 -->
-        <div class="" style="float: left">
-            <p class="am-kai">发送给  : <span id="sendto">全体成员</span><button class="am-btn am-btn-xs am-btn-danger" onclick="$('#sendto').text('全体成员')">复位</button></p>
-        </div>
-        <!-- 按钮区 -->
-        <div class="am-btn-group am-btn-group-xs" style="float:right;">
-            <button class="am-btn am-btn-default" type="button" onclick="clearConsole()"><span class="am-icon-trash-o"></span> 清屏</button>
-            <button class="am-btn am-btn-default" type="button" onclick="checkConnection()"><span class="am-icon-bug"></span> 检查</button>
-            <button class="am-btn am-btn-default" type="button" onclick="sendMessage()"><span class="am-icon-commenting"></span> 发送文字</button>
-            <button class="am-btn am-btn-default" type="file" onclick="sendFileOrImage('image')"><span class="am-icon-file-image-o"></span> 发送图片</button>
-            <button class="am-btn am-btn-default" type="file" onclick="sendFileOrImage('file')"><span class="am-icon-file-image-o"></span> 发送文件</button>
-        </div>
+        
     </div>
     <!-- 列表区 -->
     <div class="am-panel am-panel-default" style="float:right;width: 20%;">
@@ -48,6 +70,7 @@
         </ul>
     </div>
 </div>
+
 <!-- content end -->
 <script>
 	var imgData =null;
@@ -256,10 +279,31 @@
         $("#chat").append(innerHTML+"<br/>")
     };
     
+    /**
+     * 下载
+     */
     function downLoad(fileName){
     	debugger
     	window.location.href = "<%=path%>/userManage/downLoad?fileName=" + encodeURI(encodeURI(fileName));
     };
+    
+    /**
+     * 加载个人信息页面
+     */
+     function loadUserMessage(){
+    	var userId = "${currentUser.id}";
+    	$.ajax({
+    		url : "/demo/userManage/loadUser",
+    		type : "get",
+    		data : {
+    			userId : userId
+    		},
+    		success : function(result){
+    		    $("#loadUser").html(result);
+    		},
+    		error : function(){}
+    	});
+    }
 
 
 </script>

@@ -7,7 +7,7 @@ import javax.websocket.server.ServerEndpointConfig;
 
 public class HttpSessionConfigurator extends ServerEndpointConfig.Configurator  {
     @Override
-    public void modifyHandshake(ServerEndpointConfig config, HandshakeRequest request, HandshakeResponse response){
+    public void modifyHandshake(ServerEndpointConfig config, HandshakeRequest request, HandshakeResponse response) {
             HttpSession httpSession = (HttpSession)request.getHttpSession();
         config.getUserProperties().put(HttpSession.class.getName(),httpSession);
     }

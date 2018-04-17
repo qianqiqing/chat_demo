@@ -1,26 +1,18 @@
 package com.kedacom.demo.controller;
 
-import java.io.IOException;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.apache.log4j.BasicConfigurator;  
-import org.apache.log4j.Level;  
-import org.apache.log4j.Logger;  
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.kedacom.demo.model.User;
 import com.kedacom.demo.service.LoginInfoService;
+import com.kedacom.demo.service.UserManageService;
 
 @Controller
 @RequestMapping("/login")
@@ -30,7 +22,8 @@ public class LoginController {
 	@Autowired
 	private LoginInfoService loginInfoService;
 	
-	private User user;
+	@Autowired
+	private UserManageService userManageService;
 	
 	@RequestMapping (method = RequestMethod.GET)  
     public ModelAndView login() {
@@ -39,20 +32,13 @@ public class LoginController {
     }
 	
 	@RequestMapping (value = "/loginValidate")
-	public String loginValidate(HttpSession session , String name, String password){
+	public String loginValidate(HttpSession session , String name, String password, Model model) {
 		User user = loginInfoService.validateUser(name, password);
-		if (user != null){
+		if (user != null) {
 			session.setAttribute("currentUser", user);
 			return "index_test";
-		} else{
+		} else {
 			return "login/login";
 		}
-	}
-	
-	
-	@RequestMapping (value = "/managerIndex" , method = RequestMethod.GET)
-	public ModelAndView managerIndex() {
-		ModelAndView view = new ModelAndView("index");
-		return view;
 	}
 }

@@ -1,5 +1,12 @@
 package com.kedacom.demo.service.impl;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
@@ -8,19 +15,15 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import com.kedacom.demo.common.wesocket.ChatRoom;
 import com.kedacom.demo.dao.UserDao;
 import com.kedacom.demo.model.User;
 import com.kedacom.demo.service.UserManageService;
-import com.kedacom.demo.wesocket.ChatRoom;
 
+/**
+ * 管理用户的service实现类
+ * @author 钱其清
+ */
 @Service
 public class UserManageServiceImpl implements UserManageService {
 	private Logger logger = Logger.getLogger(this.getClass());
@@ -28,22 +31,13 @@ public class UserManageServiceImpl implements UserManageService {
 	@Autowired
 	private UserDao userDao; 
 	
+	@Override
 	public int createUser(User user) {
 		int id = userDao.insert(user);
 		return id;
 	}
 
-	public List<User> getOnlineUser() {
-		List<User> onLineUser = userDao.getOnlineUser();
-		return onLineUser;
-	}
-
-	public User getUserDetail(String name, String password) {
-//		User user = userDao.selectByNameAndPassword(name, password);
-//		return user;
-		return null;
-	}
-
+	@Override
 	public void modifyUser(User user) {
 		try{
 			userDao.updateByPrimaryKey(user);
@@ -52,11 +46,15 @@ public class UserManageServiceImpl implements UserManageService {
 		}
 	}
 	
-	public void downLoad(HttpServletResponse response, String fileName){
+	@Override
+	public User getUserById(int id) {
+		return userDao.selectByPrimaryKey(id);
+	}
+	
+	@Override
+	public void downLoad(HttpServletResponse response, String fileName) {
 		String path = ChatRoom.loadFilePath + fileName;
-		String name = fileName.split("\\.")[0];
-		try{
-			File file = new File(path);
+		try {
 	        // 以流的形式下载文件。
 	        InputStream fis = new BufferedInputStream(new FileInputStream(path));
 	        byte[] buffer = new byte[fis.available()];
@@ -66,8 +64,7 @@ public class UserManageServiceImpl implements UserManageService {
 	        response.reset();
 	        // 设置response的Header
 	        response.setContentType("application/octet-stream;charset=utf-8");  
-	        response.setHeader("Content-Disposition", "attachment;filename="  
-	                + new String(fileName.getBytes(),"iso-8859-1"));  
+	        response.setHeader("Content-Disposition", "attachment;filename=" + new String(fileName.getBytes(),"iso-8859-1"));  
 	        OutputStream toClient = new BufferedOutputStream(response.getOutputStream());
 	        toClient.write(buffer);
 	        toClient.flush();

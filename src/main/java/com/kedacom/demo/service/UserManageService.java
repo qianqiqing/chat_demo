@@ -8,24 +8,29 @@ import com.kedacom.demo.model.User;
 
 public interface UserManageService {
     /**
-    **创建用户 
-    **/	
+     * 创建用户
+     * @param user
+     * @return
+     */
 	public int createUser(User user);
+	
 	/**
-    **查询在线用户
-    **/	
-	public List<User> getOnlineUser();
-	/**
-    **登陆用户基本信息
-    **/
-	public User getUserDetail(String name, String password);
-	/**
-    **更新用户信息
-    **/	
+	 * 更新用户信息
+	 * @param user
+	 */
 	public void modifyUser(User user);
+	
 	/**
-    **文件下载
-    **/	
+	 * 文件下载
+	 * @param response
+	 * @param fileName
+	 */
 	public void downLoad(HttpServletResponse response, String fileName);
-
+	
+	/**
+	 * 根据id获取用户
+	 * @param id
+	 * @return
+	 */
+    public User getUserById(int id);
 }
