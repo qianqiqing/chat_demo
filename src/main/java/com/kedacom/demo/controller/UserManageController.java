@@ -23,6 +23,12 @@ public class UserManageController {
 	
 	@Autowired
 	private UserManageService userManageService;
+	
+	@RequestMapping (value = "/index")
+	public ModelAndView index() {
+		ModelAndView view = new ModelAndView("userManage/index");
+		return view;
+	}
      
 	 @RequestMapping (value = "/addUserIndex" , method = RequestMethod.GET)
 	 public ModelAndView addUserIndex() {

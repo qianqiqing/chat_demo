@@ -5,6 +5,12 @@
 <link rel="stylesheet" href="http://cdn.amazeui.org/amazeui/2.7.2/css/amazeui.css">
 <script src="http://cdn.bootcss.com/jquery/2.1.4/jquery.min.js"></script>
 <script src="http://cdn.amazeui.org/amazeui/2.7.2/js/amazeui.min.js"></script>
-<script>
+<script type="text/javascript">
     var path = '${ctx}';
+	webDemo = {
+	    formatUrl: function (url) {
+	        return path + url;
+	    }
+	};
 </script>
+    

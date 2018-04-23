@@ -1,29 +1,26 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page language="java" contentType="text/html; charset=UTF-8"  pageEncoding="UTF-8"%>
 <c:set var="ctx" value="${pageContext.request.contextPath}"/>
-<header class="am-topbar admin-header">
+<header class="am-topbar am-topbar-inverse">
     <div class="am-topbar-brand">
-        <i class="am-icon-weixin"></i> <strong>Chatroom</strong> <small>网页聊天室</small>
+        <i class="am-icon-weixin"></i> <strong>网页聊天室</strong>
     </div>
-    <button class="am-topbar-btn am-topbar-toggle am-btn am-btn-sm am-btn-success am-show-sm-only" data-am-collapse="{target: '#topbar-collapse'}"><span class="am-sr-only">导航切换</span> <span class="am-icon-bars"></span></button>
-    <div class="am-collapse am-topbar-collapse" id="topbar-collapse">
-	    <ul class="am-nav am-nav-pills am-topbar-nav am-topbar-right admin-header-list">
-		      <li><a href="javascript:;"><span class="am-icon-envelope-o"></span> 收件箱 <span class="am-badge am-badge-warning"></span></a></li>
-			      <li class="am-dropdown" data-am-dropdown>
-				        <a class="am-dropdown-toggle" data-am-dropdown-toggle href="javascript:;">
-				             <span class="am-icon-users"></span> ${currentUser.name} <span class="am-icon-caret-down"></span>
-				        </a>
-				        <ul class="am-dropdown-content">
-				              <c:if  test = "${currentUser.role == 1}">
-				                  <li><a href="javascript:createUser();"><span class="am-icon-user"></span> 创建用户</a></li>
-				                  <li><a href="javascript:createGroup();"><span class="am-icon-user"></span> 新建分组</a></li>
-				              </c:if>
-					          <li><a href="#"><span class="am-icon-cog"></span> 个人设置</a></li>
-					          <li><a href="#"><span class="am-icon-power-off"></span> 退出</a></li>
-				        </ul>
-			      </li>
+    <div class="am-collapse am-topbar-collapse" id="doc-topbar-collapse">
+	    <ul class="am-nav am-nav-pills am-topbar-nav">
+	      <li class="am-active" id="usermanage_node"><a id="usermanage" href="#">用户管理</a></li>
+	      <li id="chatroom_node"><a id="chatroom" href="#">聊天室</a></li>
 	    </ul>
-  </div>
+	    
+	    <div class="am-topbar-right">
+	      <div class="am-dropdown" data-am-dropdown="{boundary: '.am-topbar'}">
+	        <button class="am-btn am-btn-secondary am-topbar-btn am-btn-sm am-dropdown-toggle" data-am-dropdown-toggle><span class="am-icon-users"></span> ${currentUser.name} <span class="am-icon-caret-down"></span></button>
+	        <ul class="am-dropdown-content">
+	          <li><a href="javascript:createUser();"><span class="am-icon-user"></span> 创建用户</a></li>
+			  <li><a href="javascript:createGroup();"><span class="am-icon-user"></span> 新建分组</a></li>
+	        </ul>
+	      </div>
+    </div>
+    </div>
 </header>
 
 <div class="am-popup" id="my-popup" style="width:600px;height:420px">
